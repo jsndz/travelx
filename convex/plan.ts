@@ -433,15 +433,18 @@ export const prepareBatch3 = action({
 
       const nameMsg = completion?.choices[0]?.message?.function_call
         ?.arguments as string;
-
+      console.log(nameMsg);
+      
       const modelName = JSON.parse(nameMsg) as Pick<
         Doc<"plan">,
-        "itinerary" | "topplacestovisit"
+        "itinerary" | "topplacestovisit" | "estimatedbudget"
       >;
+      
 
-      await ctx.runMutation(internal.plan.updateItineraryTopPlacesToVisit, {
+      await ctx.runMutation(internal.plan.updateItineraryTopPlacesToVisitEstimatedBudget, {
         itinerary: modelName.itinerary,
         topplacestovisit: modelName.topplacestovisit,
+        estimatedbudget : modelName.estimatedbudget,
         planId: emptyPlan._id,
       });
     } catch (error) {
@@ -503,7 +506,7 @@ export const updateActivitiesToDoPackingChecklistLocalCuisineRecommendations =
     },
   });
 
-export const updateItineraryTopPlacesToVisit = internalMutation({
+export const updateItineraryTopPlacesToVisitEstimatedBudget = internalMutation({
   args: {
     planId: v.id("plan"),
     topplacestovisit: v.array(
@@ -540,19 +543,26 @@ export const updateItineraryTopPlacesToVisit = internalMutation({
         }),
       })
     ),
+    estimatedbudget: v.object({
+      min: v.number(),
+      max: v.number(),
+      currency: (v.string()),
+    })
   },
   handler: async (ctx, args) => {
     const plan = await ctx.db.get(args.planId);
     console.log(
-      `updateItineraryTopPlacesToVisit called on planId : ${args.planId}`
+      `updateItineraryTopPlacesToVisitEstimatedBudget called on planId : ${args.planId}`
     );
     await ctx.db.patch(args.planId, {
       topplacestovisit: args.topplacestovisit,
       itinerary: args.itinerary,
+      estimatedbudget:args.estimatedbudget,
       contentGenerationState: {
         ...plan!.contentGenerationState,
         topplacestovisit: true,
         itinerary: true,
+        estimatedbudget:true,
       },
     });
   },
@@ -582,7 +592,8 @@ export const updatePartOfPlan = mutation({
       v.literal("packingchecklist"),
       v.literal("localcuisinerecommendations"),
       v.literal("adventuresactivitiestodo"),
-      v.literal("topplacestovisit")
+      v.literal("topplacestovisit"),
+      v.literal("estimatedbudget")
     ),
   },
   handler: async (ctx, args) => {
@@ -625,6 +636,33 @@ export const updatePlaceToVisit = mutation({
     });
   },
 });
+
+export const updateEstimatedBudget = mutation({
+  args:{
+    planId: v.id("plan"),
+
+    min: v.number(),
+    max: v.number(),
+    currency:(v.string()),
+  },
+  handler: async(ctx,args) =>{
+    const { subject } = await getIdentityOrThrow(ctx);
+    console.log(
+      `updateEstimatedBudget called by ${subject} on planId : ${args.planId}`
+    );
+    const plan = await ctx.db.get(args.planId);
+    if (!plan) return;
+    const existing = plan?.estimatedbudget;
+    await ctx.db.patch(plan?._id, {
+      estimatedbudget:
+        {
+          currency: args.currency,
+          min:args.min,
+          max:args.max
+        },
+    });
+  }
+})
 
 export const deleteDayInItinerary = mutation({
   args: { dayName: v.string(), planId: v.id("plan") },
@@ -712,6 +750,11 @@ export const createEmptyPlan = mutation({
       storageId: null,
       localcuisinerecommendations: [],
       packingchecklist: [],
+      estimatedbudget: {
+        min: 0,
+        max: 0,
+        currency: "INR", 
+      },
       isGeneratedUsingAI: args.isGeneratedUsingAI,
       contentGenerationState: {
         imagination: state,
@@ -719,6 +762,7 @@ export const createEmptyPlan = mutation({
         adventuresactivitiestodo: state,
         besttimetovisit: state,
         itinerary: state,
+        estimatedbudget:state,
         localcuisinerecommendations: state,
         packingchecklist: state,
         topplacestovisit: state,

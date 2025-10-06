@@ -20,6 +20,11 @@ export default defineSchema({
     ),
     packingchecklist: v.array(v.string()),
     localcuisinerecommendations: v.array(v.string()),
+    estimatedbudget:(v.object({
+      min: v.number(),
+      max: v.number(),
+      currency: (v.string()),
+    })),
     userId: v.string(),
     besttimetovisit: v.string(),
     itinerary: v.array(
@@ -54,6 +59,7 @@ export default defineSchema({
       topplacestovisit: v.boolean(),
       itinerary: v.boolean(),
       localcuisinerecommendations: v.boolean(),
+      estimatedbudget:(v.boolean()),
       packingchecklist: v.boolean(),
       besttimetovisit: v.boolean(),
     }),

@@ -9,6 +9,7 @@ import {
   LocalCuisineRecommendations,
   PackingChecklist,
 } from "@/components/sections";
+import EstimatedBudget from "@/components/sections/EstimatedBudget";
 import PlanMetaData from "@/components/sections/PlanMetaData";
 
 import { usePlanContext } from "@/contexts/PlanContextProvider";
@@ -62,6 +63,12 @@ export default async function CommunityPlan({ planId }: PlanProps) {
         isLoading={isLoading}
         allowEdit={false}
       />
+      <EstimatedBudget
+        estimatedBudget={plan?.estimatedbudget}
+        planId={planId}
+        isLoading={isLoading || !plan?.contentGenerationState.estimatedbudget}
+        allowEdit={false}
+      />
       <LocalCuisineRecommendations
         recommendations={plan?.localcuisinerecommendations}
         isLoading={isLoading}
@@ -80,6 +87,7 @@ export default async function CommunityPlan({ planId }: PlanProps) {
         isLoading={isLoading}
         allowEdit={false}
       />
+
     </section>
   );
 }

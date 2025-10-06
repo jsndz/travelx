@@ -1,3 +1,4 @@
+
 export const batch1Schema = {
   type: "object",
   properties: {
@@ -32,6 +33,7 @@ export const batch2Schema = {
       description: "Packing Checklist",
       items: { type: "string" },
     },
+    
   },
   required: [
     "adventuresactivitiestodo",
@@ -130,7 +132,28 @@ export const batch3Schema = {
         },
         required: ["name", "coordinates"],
       },
+
     },
+    estimatedBudget: {
+      type: "object",
+      description: "Estimated Budget for the trip",
+      properties: {
+        min: {
+          type: "number",
+          description: "Minimum estimated budget",
+        },
+        max: {
+          type: "number",
+          description: "Maximum estimated budget",
+        },
+        currency: {
+          type: "string",
+          description: "Currency code",
+        },
+      },
+      required: ["min", "max"], 
+    }
+
   },
   required: ["itinerary", "topplacestovisit"],
 };

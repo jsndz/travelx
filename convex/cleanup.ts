@@ -81,6 +81,7 @@ export const fillDefaultValues = mutation({
           localcuisinerecommendations: true,
           packingchecklist: true,
           besttimetovisit: true,
+          estimatedbudget:true,
         },
       });
     });

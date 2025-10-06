@@ -19,6 +19,7 @@ import Weather from "@/components/sections/Weather";
 import PlanMetaData from "@/components/sections/PlanMetaData";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import EstimatedBudget from "@/components/sections/EstimatedBudget";
 
 type PlanProps = {
   planId: string;
@@ -127,6 +128,12 @@ const Plan = ({ planId }: PlanProps) => {
         planId={planId}
         allowEdit={true}
       />
+      <EstimatedBudget
+        estimatedBudget={plan?.estimatedbudget}
+        planId={planId}
+        isLoading={isLoading || !plan?.contentGenerationState.estimatedbudget}
+        allowEdit={true}
+      />
       <PackingChecklist
         checklist={plan?.packingchecklist}
         isLoading={isLoading || !plan?.contentGenerationState.packingchecklist}
@@ -139,6 +146,7 @@ const Plan = ({ planId }: PlanProps) => {
         isLoading={isLoading || !plan?.contentGenerationState.besttimetovisit}
         allowEdit={true}
       />
+      
     </section>
   );
 };

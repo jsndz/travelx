@@ -2,8 +2,9 @@ import { batch1Schema, batch2Schema, batch3Schema } from "./schemas";
 
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
+const openai = new OpenAI({
+  apiKey:`${process.env.OPEN_AI_API}`,
+});
 const promptSuffix = `generate travel data according to the schema and in json format,
                      do not return anything in your response outside of curly braces, 
                      generate response as per the functin schema provided. Dates given,
@@ -11,18 +12,30 @@ const promptSuffix = `generate travel data according to the schema and in json f
 
 const callOpenAIApi = (prompt: string, schema: any, description: string) => {
   console.log({ prompt, schema });
+  
   return openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
       { role: "system", content: "You are a helpful travel assistant." },
       { role: "user", content: prompt },
     ],
-    functions: [
-      { name: "set_travel_details", parameters: schema, description },
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "set_travel_details",
+          description,
+          parameters: schema,
+        },
+      },
     ],
-    function_call: { name: "set_travel_details" },
+    tool_choice: {
+      type: "function",
+      function: { name: "set_travel_details" },
+    },
   });
 };
+
 
 export const generatebatch1 = (promptText: string) => {
   const prompt = `${promptText}, ${promptSuffix}`;
@@ -75,6 +88,11 @@ export const generatebatch3 = (inputParams: OpenAIInputType) => {
   - Top Places to Visit:
     - An array listing the top places to visit along with their coordinates.
     - Each place includes a name and coordinates (latitude and longitude).
+
+  - Estimated Budget for the trip:
+    - min: numeric minimum budget
+    - max: numeric maximum budget
+    - currency: 3-letter code like INR or USD
   
   Ensure that the function response adheres to the schema provided and is in JSON format. The response should not contain anything outside of the defined schema.`;
   return callOpenAIApi(getPropmpt(inputParams), batch3Schema, description);
