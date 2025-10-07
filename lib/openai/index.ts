@@ -3,7 +3,7 @@ import { batch1Schema, batch2Schema, batch3Schema } from "./schemas";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey:`${process.env.OPEN_AI_API}`,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const promptSuffix = `generate travel data according to the schema and in json format,
                      do not return anything in your response outside of curly braces, 

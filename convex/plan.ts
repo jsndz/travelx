@@ -297,6 +297,13 @@ export const prepareBatch1 = action({
   },
   handler: async (ctx, { planId }) => {
     try {
+      console.log(
+        JSON.stringify(
+          { source: "prepareBatch1:start", planId },
+          null,
+          0
+        )
+      );
       const emptyPlan = await fetchEmptyPlan(ctx, planId);
 
       if (!emptyPlan) {
@@ -307,8 +314,13 @@ export const prepareBatch1 = action({
 
       const completion = await generatebatch1(emptyPlan.userPrompt);
 
-      const nameMsg = completion?.choices[0]?.message?.function_call
-        ?.arguments as string;
+      const nameMsg =
+        completion?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ??
+        completion?.choices?.[0]?.message?.function_call?.arguments
+      console.log(nameMsg);
+      if (!nameMsg) {
+        throw new ConvexError("nameMsg is undefined and cannot be parsed");
+      }
 
       const modelName = JSON.parse(nameMsg) as Pick<
         Doc<"plan">,
@@ -320,9 +332,23 @@ export const prepareBatch1 = action({
         besttimetovisit: modelName.besttimetovisit,
         planId: emptyPlan._id,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error(
+        JSON.stringify(
+          {
+            source: "prepareBatch1:error",
+            message: error?.message ?? String(error),
+            code: error?.code,
+            status: (error && (error.status as unknown)) || undefined,
+          },
+          null,
+          0
+        )
+      );
       throw new ConvexError(
-        `Error occured in prepare Plan Convex action: ${error}`
+        `Error occured in prepare Plan Convex action: ${error?.message ?? String(
+          error
+        )}`
       );
     }
   },
@@ -334,7 +360,13 @@ export const prepareBatch2 = action({
   },
   handler: async (ctx, { planId }) => {
     try {
-      console.log({ planId });
+      console.log(
+        JSON.stringify(
+          { source: "prepareBatch2:start", planId },
+          null,
+          0
+        )
+      );
 
       const emptyPlan = await fetchEmptyPlan(ctx, planId);
 
@@ -368,9 +400,13 @@ export const prepareBatch2 = action({
         toDate,
       });
 
-      const nameMsg = completion?.choices[0]?.message?.function_call
-        ?.arguments as string;
-
+      const nameMsg =
+        completion?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ??
+        completion?.choices?.[0]?.message?.function_call?.arguments
+      console.log(nameMsg);
+              if (!nameMsg) {
+              throw new ConvexError("nameMsg is undefined and cannot be parsed");
+            }
       const modelName = JSON.parse(nameMsg) as Pick<
         Doc<"plan">,
         | "adventuresactivitiestodo"
@@ -388,8 +424,24 @@ export const prepareBatch2 = action({
           planId: emptyPlan._id,
         }
       );
-    } catch (error) {
-      throw new Error(`Error occured in prepare Plan Convex action: ${error}`);
+    } catch (error: any) {
+      console.error(
+        JSON.stringify(
+          {
+            source: "prepareBatch2:error",
+            message: error?.message ?? String(error),
+            code: error?.code,
+            status: (error && (error.status as unknown)) || undefined,
+          },
+          null,
+          0
+        )
+      );
+      throw new Error(
+        `Error occured in prepare Plan Convex action: ${error?.message ?? String(
+          error
+        )}`
+      );
     }
   },
 });
@@ -400,6 +452,13 @@ export const prepareBatch3 = action({
   },
   handler: async (ctx, { planId }) => {
     try {
+      console.log(
+        JSON.stringify(
+          { source: "prepareBatch3:start", planId },
+          null,
+          0
+        )
+      );
       const emptyPlan = await fetchEmptyPlan(ctx, planId);
 
       if (!emptyPlan) {
@@ -431,25 +490,56 @@ export const prepareBatch3 = action({
         toDate,
       });
 
-      const nameMsg = completion?.choices[0]?.message?.function_call
-        ?.arguments as string;
-      console.log(nameMsg);
-      
-      const modelName = JSON.parse(nameMsg) as Pick<
-        Doc<"plan">,
-        "itinerary" | "topplacestovisit" | "estimatedbudget"
-      >;
-      
+      const nameMsg =
+        completion?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments ??
+        completion?.choices?.[0]?.message?.function_call?.arguments;
+        console.log(nameMsg);
+        if (!nameMsg) {
+        throw new ConvexError("nameMsg is undefined and cannot be parsed");
+      }
+      console.log(
+        JSON.stringify(
+          { source: "prepareBatch3:rawArgsPreview", argsPreview: nameMsg?.slice(0, 200) },
+          null,
+          0
+        )
+      );
 
-      await ctx.runMutation(internal.plan.updateItineraryTopPlacesToVisitEstimatedBudget, {
-        itinerary: modelName.itinerary,
-        topplacestovisit: modelName.topplacestovisit,
-        estimatedbudget : modelName.estimatedbudget,
-        planId: emptyPlan._id,
-      });
-    } catch (error) {
+      
+      const raw = JSON.parse(nameMsg) as any;
+      const modelName = {
+        itinerary: raw.itinerary,
+        topplacestovisit: raw.topplacestovisit,
+        // accept either estimatedbudget or estimatedBudget from the model
+        estimatedbudget: raw.estimatedbudget ?? raw.estimatedBudget,
+      } as Pick<Doc<"plan">, "itinerary" | "topplacestovisit" | "estimatedbudget">;
+
+      await ctx.runMutation(
+        internal.plan.updateItineraryTopPlacesToVisitEstimatedBudget,
+        {
+          itinerary: modelName.itinerary,
+          topplacestovisit: modelName.topplacestovisit,
+          estimatedbudget: modelName.estimatedbudget,
+          planId: emptyPlan._id,
+        }
+      );
+    } catch (error: any) {
+      console.error(
+        JSON.stringify(
+          {
+            source: "prepareBatch3:error",
+            message: error?.message ?? String(error),
+            code: error?.code,
+            status: (error && (error.status as unknown)) || undefined,
+          },
+          null,
+          0
+        )
+      );
       throw new ConvexError(
-        `Error occured in prepare Plan Convex action: ${error}`
+        `Error occured in prepare Plan Convex action: ${error?.message ?? String(
+          error
+        )}`
       );
     }
   },
