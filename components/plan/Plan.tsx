@@ -20,6 +20,7 @@ import PlanMetaData from "@/components/sections/PlanMetaData";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import EstimatedBudget from "@/components/sections/EstimatedBudget";
+import TravelGuide from "@/components/sections/TravelGuide";
 
 type PlanProps = {
   planId: string;
@@ -146,7 +147,11 @@ const Plan = ({ planId }: PlanProps) => {
         isLoading={isLoading || !plan?.contentGenerationState.besttimetovisit}
         allowEdit={true}
       />
-      
+      {/* <TravelGuide
+        cityname={plan?.nameoftheplace!}
+        fromDate={plan?.fromDate!}
+        toDate={plan?.toDate!}
+      ></TravelGuide> */}
     </section>
   );
 };

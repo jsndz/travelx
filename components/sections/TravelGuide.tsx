@@ -3,18 +3,33 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Plane } from "lucide-react";
+import { MapPin, Calendar } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface TravelGuideProps {
-  cityname: string;
-  fromDate: number;
-  toDate: number;
+  cityname?: string;
+  fromDate?: number;
+  toDate?: number;
 }
 
 const TravelGuide = ({ cityname, fromDate, toDate }: TravelGuideProps) => {
-  const city = cityname.split(/[ ,]/)[0].trim();
+  if (!cityname || !fromDate || !toDate) {
+    return (
+      <Card className="max-w-md mx-auto mt-10 border-border/40 bg-background/70 backdrop-blur-md shadow-md rounded-2xl">
+        <CardHeader>
+          <CardTitle className="text-muted-foreground text-center">
+            Loading travel guide...
+          </CardTitle>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  // Extract city safely
+  const city = cityname.split(/[ ,]/)[0]?.trim() || "Unknown";
+
+  // Convert timestamps
   const from = new Date(fromDate).toISOString().split("T")[0];
   const to = new Date(toDate).toISOString().split("T")[0];
 
@@ -35,6 +50,7 @@ const TravelGuide = ({ cityname, fromDate, toDate }: TravelGuideProps) => {
           {city}
         </CardTitle>
       </CardHeader>
+
       <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-primary" />
