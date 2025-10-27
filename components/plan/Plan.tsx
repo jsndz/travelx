@@ -147,11 +147,11 @@ const Plan = ({ planId }: PlanProps) => {
         isLoading={isLoading || !plan?.contentGenerationState.besttimetovisit}
         allowEdit={true}
       />
-      {/* <TravelGuide
+      <TravelGuide
         cityname={plan?.nameoftheplace!}
         fromDate={plan?.fromDate!}
         toDate={plan?.toDate!}
-      ></TravelGuide> */}
+      ></TravelGuide>
     </section>
   );
 };

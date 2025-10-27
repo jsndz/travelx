@@ -1,62 +1,60 @@
 "use client";
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MapPin, Calendar, Plane } from "lucide-react";
-import Link from "next/link";
+import { AuthLoading, Authenticated, Unauthenticated } from "convex/react";
+import { SignInButton, UserButton } from "@clerk/nextjs";
+
+import { Loading } from "@/components/shared/Loading";
 import { cn } from "@/lib/utils";
+import { ThemeDropdown } from "@/components/ThemeDropdown";
+import FeedbackSheet from "@/components/common/FeedbackSheet";
+import Logo from "@/components/common/Logo";
+import MobileMenu from "@/components/dashboard/MobileMenu";
+import { CreditsDrawerWithDialog } from "@/components/shared/DrawerWithDialogGeneric";
+import Link from "next/link";
 
-interface TravelGuideProps {
-  cityname: string;
-  fromDate: number;
-  toDate: number;
-}
-
-const TravelGuide = ({ cityname, fromDate, toDate }: TravelGuideProps) => {
-  const city = cityname.split(/[ ,]/)[0].trim();
-  const from = new Date(fromDate).toISOString().split("T")[0];
-  const to = new Date(toDate).toISOString().split("T")[0];
-
-  const wikilinks = `https://en.wikivoyage.org/wiki/${encodeURIComponent(city)}`;
-  const hotelLinks = `https://www.kayak.com/hotels/${encodeURIComponent(
-    city
-  )}/${from}/${to};map?sort=rank_a`;
-
+const Header = () => {
   return (
-    <Card
+    <header
       className={cn(
-        "max-w-md mx-auto mt-10 border-border/40 bg-background/70 backdrop-blur-md shadow-md rounded-2xl transition-all hover:shadow-lg"
+        "w-full border-b bottom-2 border-border/40 z-50 sticky top-0",
+        "bg-background backdrop-blur supports-[backdrop-filter]:bg-background/60"
       )}
     >
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <MapPin className="w-5 h-5 text-primary" />
-          {city}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-primary" />
-          <span>
-            {from} → {to}
-          </span>
+      <nav className="lg:px-20 px-5 py-3 mx-auto">
+        <div className="flex justify-evenly w-full">
+          <Logo />
+          <div className="md:hidden flex gap-6 flex-1">
+            <MobileMenu />
+          </div>
+          <div className="flex gap-4 justify-end items-center flex-1">
+            <AuthLoading>
+              <Loading />
+            </AuthLoading>
+            <Unauthenticated>
+              <ThemeDropdown />
+              <SignInButton mode="modal" afterSignInUrl="/dashboard" />
+            </Unauthenticated>
+            <Authenticated>
+              <div className="flex justify-center items-center gap-2">
+                <Link
+                  href="community-plans"
+                  className="whitespace-nowrap hidden md:block hover:underline cursor-pointer hover:underline-offset-4 text-foreground text-sm"
+                  scroll
+                >
+                  Community Plans
+                </Link>
+
+                <CreditsDrawerWithDialog />
+                <FeedbackSheet />
+                <ThemeDropdown />
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </Authenticated>
+          </div>
         </div>
-        <div className="flex gap-3 mt-3">
-          <Button asChild variant="default" className="flex-1">
-            <Link href={wikilinks} target="_blank" rel="noopener noreferrer">
-              Travel Guide
-            </Link>
-          </Button>
-          <Button asChild variant="secondary" className="flex-1">
-            <Link href={hotelLinks} target="_blank" rel="noopener noreferrer">
-              Hotels
-            </Link>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      </nav>
+    </header>
   );
 };
 
-export default TravelGuide;
+export default Header;
